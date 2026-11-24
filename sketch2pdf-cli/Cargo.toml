@@ -1,0 +1,11 @@
+[package]
+name = "sketch2pdf-cli"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+sketch2pdf = { version = "0.1.0", path = "../sketch2pdf" }
+
+[[bin]]
+name = "sketch2pdf"
+path = "src/main.rs"

@@ -1,0 +1,3 @@
+[workspace]
+members = ["sketch2pdf", "sketch2pdf-cli"]
+resolver = "2"

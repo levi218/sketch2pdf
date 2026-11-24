@@ -1,0 +1,8 @@
+/target
+/.venv
+/out
+/report
+/samples/*
+!/samples/order.json
+.DS_Store
+/fonts
