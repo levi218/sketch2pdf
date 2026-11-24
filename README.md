@@ -1,5 +1,9 @@
 # sketch2pdf
 
+[![CI](https://github.com/levi218/sketch2pdf/actions/workflows/ci.yml/badge.svg)](https://github.com/levi218/sketch2pdf/actions/workflows/ci.yml)
+[![Demo](https://img.shields.io/badge/demo-GitHub%20Pages-2563eb)](https://levi218.github.io/sketch2pdf/)
+[![License: GPL v3](https://img.shields.io/badge/license-GPLv3-blue.svg)](LICENSE)
+
 Convert Sketch (`.sketch`, v43+ JSON format) documents to PDF, without Sketch or macOS.
 
 Each artboard becomes one PDF page, in document order. Drawing goes through Skia's PDF
@@ -27,10 +31,47 @@ std::fs::write("design.pdf", out.pdf)?;
 // out.warnings: Vec<String>
 ```
 
+### In the browser
+
+`docs/` is a static converter page that runs `sketch2pdf` as WebAssembly, entirely client-side. Each release deploys it to [GitHub Pages](https://levi218.github.io/sketch2pdf/).
+
+To build `docs/sketch2pdf.js` and `docs/sketch2pdf_wasm.wasm`, activate [emsdk](https://emscripten.org/docs/getting_started/downloads.html), then:
+
+```bash
+rustup target add wasm32-unknown-emscripten
+```
+
+```bash
+./build-wasm.sh
+```
+
+To try the page locally, build it, then serve `docs/` over HTTP (for example `python3 -m http.server -d docs`). The browser has no system fonts, so text needs fonts embedded in the document or added on the page.
+
+## Releasing
+
+Push a version tag:
+
+```bash
+git tag v0.1.0 && git push origin v0.1.0
+```
+
+The release workflow builds the CLI for Linux (x86_64), macOS (Apple silicon) and Windows (x86_64), and the web demo as a zip. It attaches them all to a GitHub release for the tag, then deploys the demo to GitHub Pages.
+
+The Pages deploy is skipped while the repository is private. Once it's public, turn on Pages and allow deploys from version tags (by default, only the default branch can deploy):
+
+```bash
+gh api -X POST repos/levi218/sketch2pdf/pages -f build_type=workflow
+```
+
+```bash
+gh api -X POST repos/levi218/sketch2pdf/environments/github-pages/deployment-branch-policies -f name='v*' -f type=tag
+```
+
 ## Project layout
 
 - `sketch2pdf/` is the library. The whole renderer is in `src/lib.rs`.
 - `sketch2pdf-cli/` is the `sketch2pdf` command-line tool.
+- `sketch2pdf-wasm/` exposes the library to JavaScript as a C ABI, for the emscripten build. `docs/` holds the page that uses it.
 - `tools/report.py` compares the output against two references: the preview Sketch embeds in each file, and Photopea PSD exports of the same file. It writes an HTML report to `report/`. Setup and run instructions are in the script's docstring.
 - `samples/` holds test files and is not tracked. `cargo test` converts every `samples/sketch/*.sketch` file when the directory is present.
 

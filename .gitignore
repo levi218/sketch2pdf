@@ -6,3 +6,5 @@
 !/samples/order.json
 .DS_Store
 /fonts
+/docs/sketch2pdf.js
+/docs/sketch2pdf_wasm.wasm

@@ -1,0 +1,110 @@
+name: Release
+
+on:
+  push:
+    tags: ["v*"]
+
+permissions:
+  contents: read
+
+env:
+  CARGO_TERM_COLOR: always
+  # Keep in sync with ci.yml.
+  RUST_VERSION: "1.93.1"
+  EMSDK_VERSION: "7.0.0"
+
+jobs:
+  cli:
+    name: CLI (${{ matrix.target }})
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - { os: ubuntu-latest, target: x86_64-unknown-linux-gnu }
+          - { os: macos-latest, target: aarch64-apple-darwin }
+          - { os: windows-latest, target: x86_64-pc-windows-msvc }
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - if: runner.os == 'Linux'
+        run: sudo apt-get update && sudo apt-get install -y libfontconfig1-dev libfreetype6-dev
+      - uses: dtolnay/rust-toolchain@master
+        with:
+          toolchain: ${{ env.RUST_VERSION }}
+          targets: ${{ matrix.target }}
+      - uses: Swatinem/rust-cache@v2
+      - run: cargo build --release --locked -p sketch2pdf-cli --target ${{ matrix.target }}
+      - name: Package
+        shell: bash
+        run: |
+          name=sketch2pdf-${GITHUB_REF_NAME}-${{ matrix.target }}
+          mkdir "$name"
+          cp README.md LICENSE "$name/"
+          if [ "$RUNNER_OS" = Windows ]; then
+            cp target/${{ matrix.target }}/release/sketch2pdf.exe "$name/"
+            7z a "$name.zip" "$name" >/dev/null
+          else
+            cp target/${{ matrix.target }}/release/sketch2pdf "$name/"
+            tar czf "$name.tar.gz" "$name"
+          fi
+      - uses: actions/upload-artifact@v4
+        with:
+          name: cli-${{ matrix.target }}
+          path: sketch2pdf-*.*
+
+  wasm:
+    name: Demo page
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@master
+        with:
+          toolchain: ${{ env.RUST_VERSION }}
+          targets: wasm32-unknown-emscripten
+      - uses: Swatinem/rust-cache@v2
+      - uses: mymindstorm/setup-emsdk@v14
+        with:
+          version: ${{ env.EMSDK_VERSION }}
+          actions-cache-folder: emsdk-cache
+      - run: ./build-wasm.sh
+      - run: cd docs && zip -r "../sketch2pdf-${GITHUB_REF_NAME}-web.zip" .
+      - uses: actions/upload-artifact@v4
+        with:
+          name: web
+          path: sketch2pdf-*-web.zip
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: docs
+
+  release:
+    name: GitHub release
+    needs: [cli, wasm]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          merge-multiple: true
+      - run: gh release create "$GITHUB_REF_NAME" --repo "$GITHUB_REPOSITORY" --generate-notes sketch2pdf-*
+        env:
+          GH_TOKEN: ${{ github.token }}
+
+  pages:
+    name: Deploy to GitHub Pages
+    # Pages needs a public repo on the free plan; this job starts deploying once the repo is public.
+    if: ${{ !github.event.repository.private }}
+    needs: [release]
+    runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    concurrency:
+      group: pages
+      cancel-in-progress: false
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4

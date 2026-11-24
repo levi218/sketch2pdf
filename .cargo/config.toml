@@ -1,0 +1,13 @@
+[target.wasm32-unknown-emscripten]
+rustflags = [
+  "-C", "link-arg=-sDEFAULT_TO_CXX=1",
+  "-C", "link-arg=-sMODULARIZE=1",
+  "-C", "link-arg=-sEXPORT_ES6=1",
+  "-C", "link-arg=-sEXPORT_NAME=sketch2pdf",
+  "-C", "link-arg=-sENVIRONMENT=web,worker",
+  "-C", "link-arg=-sALLOW_MEMORY_GROWTH=1",
+  "-C", "link-arg=-sSTACK_SIZE=8MB",
+  "-C", "link-arg=-sINVOKE_RUN=0",
+  "-C", "link-arg=-sEXPORTED_FUNCTIONS=_malloc,_free,_s2p_add_font,_s2p_convert,_s2p_out_ptr,_s2p_out_len,_s2p_warn_ptr,_s2p_warn_len",
+  "-C", "link-arg=-sEXPORTED_RUNTIME_METHODS=HEAPU8",
+]
