@@ -57,6 +57,16 @@ git tag v0.1.0 && git push origin v0.1.0
 
 The release workflow builds the CLI for Linux (x86_64), macOS (Apple silicon) and Windows (x86_64), and the web demo as a zip. It attaches them all to a GitHub release for the tag, then deploys the demo to GitHub Pages.
 
+The Pages deploy is skipped while the repository is private. Once it's public, turn on Pages and allow deploys from version tags (by default, only the default branch can deploy):
+
+```bash
+gh api -X POST repos/levi218/sketch2pdf/pages -f build_type=workflow
+```
+
+```bash
+gh api -X POST repos/levi218/sketch2pdf/environments/github-pages/deployment-branch-policies -f name='v*' -f type=tag
+```
+
 ## Project layout
 
 - `sketch2pdf/` is the library. The whole renderer is in `src/lib.rs`.
