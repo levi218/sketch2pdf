@@ -26,6 +26,12 @@ use std::{
     io::{Cursor, Read},
 };
 
+// Skia's bundled ICU reads the Windows time zone from the registry (RegOpenKeyExW and friends)
+// but its prebuilt library doesn't link advapi32.
+#[cfg(windows)]
+#[link(name = "advapi32")]
+unsafe extern "system" {}
+
 #[derive(Debug)]
 pub struct Error(String);
 
