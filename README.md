@@ -1,5 +1,9 @@
 # sketch2pdf
 
+[![CI](https://github.com/levi218/sketch2pdf/actions/workflows/ci.yml/badge.svg)](https://github.com/levi218/sketch2pdf/actions/workflows/ci.yml)
+[![Demo](https://img.shields.io/badge/demo-GitHub%20Pages-2563eb)](https://levi218.github.io/sketch2pdf/)
+[![License: GPL v3](https://img.shields.io/badge/license-GPLv3-blue.svg)](LICENSE)
+
 Convert Sketch (`.sketch`, v43+ JSON format) documents to PDF, without Sketch or macOS.
 
 Each artboard becomes one PDF page, in document order. Drawing goes through Skia's PDF
@@ -29,9 +33,9 @@ std::fs::write("design.pdf", out.pdf)?;
 
 ### In the browser
 
-`docs/` is a static converter page that runs `sketch2pdf` as WebAssembly, entirely client-side. To publish it, set GitHub Pages to deploy from the `main` branch, `/docs` folder.
+`docs/` is a static converter page that runs `sketch2pdf` as WebAssembly, entirely client-side. CI builds it and deploys it to [GitHub Pages](https://levi218.github.io/sketch2pdf/) on every push to `main`.
 
-To rebuild `docs/sketch2pdf.js` and `docs/sketch2pdf_wasm.wasm`, activate [emsdk](https://emscripten.org/docs/getting_started/downloads.html), then:
+To build `docs/sketch2pdf.js` and `docs/sketch2pdf_wasm.wasm`, activate [emsdk](https://emscripten.org/docs/getting_started/downloads.html), then:
 
 ```bash
 rustup target add wasm32-unknown-emscripten
@@ -41,7 +45,7 @@ rustup target add wasm32-unknown-emscripten
 ./build-wasm.sh
 ```
 
-To try the page locally, serve `docs/` over HTTP (for example `python3 -m http.server -d docs`). The browser has no system fonts, so text needs fonts embedded in the document or added on the page.
+To try the page locally, build it, then serve `docs/` over HTTP (for example `python3 -m http.server -d docs`). The browser has no system fonts, so text needs fonts embedded in the document or added on the page.
 
 ## Project layout
 
