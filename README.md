@@ -27,10 +27,27 @@ std::fs::write("design.pdf", out.pdf)?;
 // out.warnings: Vec<String>
 ```
 
+### In the browser
+
+`docs/` is a static converter page that runs `sketch2pdf` as WebAssembly, entirely client-side. To publish it, set GitHub Pages to deploy from the `main` branch, `/docs` folder.
+
+To rebuild `docs/sketch2pdf.js` and `docs/sketch2pdf_wasm.wasm`, activate [emsdk](https://emscripten.org/docs/getting_started/downloads.html), then:
+
+```bash
+rustup target add wasm32-unknown-emscripten
+```
+
+```bash
+./build-wasm.sh
+```
+
+To try the page locally, serve `docs/` over HTTP (for example `python3 -m http.server -d docs`). The browser has no system fonts, so text needs fonts embedded in the document or added on the page.
+
 ## Project layout
 
 - `sketch2pdf/` is the library. The whole renderer is in `src/lib.rs`.
 - `sketch2pdf-cli/` is the `sketch2pdf` command-line tool.
+- `sketch2pdf-wasm/` exposes the library to JavaScript as a C ABI, for the emscripten build. `docs/` holds the page that uses it.
 - `tools/report.py` compares the output against two references: the preview Sketch embeds in each file, and Photopea PSD exports of the same file. It writes an HTML report to `report/`. Setup and run instructions are in the script's docstring.
 - `samples/` holds test files and is not tracked. `cargo test` converts every `samples/sketch/*.sketch` file when the directory is present.
 

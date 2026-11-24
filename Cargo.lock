@@ -446,6 +446,13 @@ dependencies = [
 ]
 
 [[package]]
+name = "sketch2pdf-wasm"
+version = "0.1.0"
+dependencies = [
+ "sketch2pdf",
+]
+
+[[package]]
 name = "skia-bindings"
 version = "0.87.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
