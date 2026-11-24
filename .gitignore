@@ -2,8 +2,7 @@
 /.venv
 /out
 /report
-/samples/*
-!/samples/order.json
+/samples
 .DS_Store
 /fonts
 /docs/sketch2pdf.js
