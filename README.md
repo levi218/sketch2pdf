@@ -33,7 +33,7 @@ std::fs::write("design.pdf", out.pdf)?;
 
 ### In the browser
 
-`docs/` is a static converter page that runs `sketch2pdf` as WebAssembly, entirely client-side. CI builds it and deploys it to [GitHub Pages](https://levi218.github.io/sketch2pdf/) on every push to `main`.
+`docs/` is a static converter page that runs `sketch2pdf` as WebAssembly, entirely client-side. Each release deploys it to [GitHub Pages](https://levi218.github.io/sketch2pdf/).
 
 To build `docs/sketch2pdf.js` and `docs/sketch2pdf_wasm.wasm`, activate [emsdk](https://emscripten.org/docs/getting_started/downloads.html), then:
 
@@ -46,6 +46,16 @@ rustup target add wasm32-unknown-emscripten
 ```
 
 To try the page locally, build it, then serve `docs/` over HTTP (for example `python3 -m http.server -d docs`). The browser has no system fonts, so text needs fonts embedded in the document or added on the page.
+
+## Releasing
+
+Push a version tag:
+
+```bash
+git tag v0.1.0 && git push origin v0.1.0
+```
+
+The release workflow builds the CLI for Linux (x86_64), macOS (Apple silicon) and Windows (x86_64), and the web demo as a zip. It attaches them all to a GitHub release for the tag, then deploys the demo to GitHub Pages.
 
 ## Project layout
 
